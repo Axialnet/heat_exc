@@ -1,0 +1,18 @@
+{
+  "version": "2.0",
+  "source_dataset": "Data/version 1/shell_tube_fouling_final.csv",
+  "source_rows": 700800,
+  "source_scenarios": 80,
+  "output_rows": 700800,
+  "description": "Physics-aware V2 transformation built from Version 1 synthetic shell-and-tube fouling data with explicit true and measured operating states.",
+  "updates": [
+    "operating-condition reconstruction",
+    "temperature-and-flow-coupled hydraulics",
+    "dynamic deposition/removal fouling model",
+    "event-based CIP and variable effectiveness",
+    "temperature-dependent corrosion layer",
+    "true-vs-measured sensor realism",
+    "physical consistency re-calculation of U, Q, and efficiency"
+  ],
+  "random_seed": 42
+}
