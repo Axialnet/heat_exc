@@ -1,0 +1,13 @@
+{
+  "target": "DI_fouling",
+  "input_mode": "Current + History",
+  "model": "LINEAR",
+  "model_key": "di_fouling_history_linear",
+  "MAE_val": 0.0001941930269236071,
+  "RMSE_val": 0.0004134892073373923,
+  "R2_val": 0.22121117449545613,
+  "MAE_test": 0.0001433248884917461,
+  "RMSE_test": 0.0002574886274553499,
+  "R2_test": 0.38934887494080384,
+  "elapsed_seconds": 0.26
+}

@@ -1,0 +1,13 @@
+{
+  "target": "DI_total",
+  "input_mode": "Current + History",
+  "model": "LINEAR",
+  "model_key": "di_total_history_linear",
+  "MAE_val": 0.0002351172224390014,
+  "RMSE_val": 0.00039025281580769224,
+  "R2_val": 0.9998064627191535,
+  "MAE_test": 0.00020126123685771695,
+  "RMSE_test": 0.0002923370392292067,
+  "R2_test": 0.999891602817694,
+  "elapsed_seconds": 0.34
+}

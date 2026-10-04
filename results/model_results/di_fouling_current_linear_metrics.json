@@ -1,0 +1,13 @@
+{
+  "target": "DI_fouling",
+  "input_mode": "Current Only",
+  "model": "LINEAR",
+  "model_key": "di_fouling_current_linear",
+  "MAE_val": 0.00022478646301984058,
+  "RMSE_val": 0.0004650221239741338,
+  "R2_val": 0.014994658402170291,
+  "MAE_test": 0.0001758402445196261,
+  "RMSE_test": 0.0003142500275283965,
+  "R2_test": 0.09044763823070612,
+  "elapsed_seconds": 0.42
+}

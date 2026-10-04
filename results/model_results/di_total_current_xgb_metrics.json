@@ -1,0 +1,13 @@
+{
+  "target": "DI_total",
+  "input_mode": "Current Only",
+  "model": "XGB",
+  "model_key": "di_total_current_xgb",
+  "MAE_val": 0.00021158193059622418,
+  "RMSE_val": 0.0006126304945769937,
+  "R2_val": 0.9995230533906923,
+  "MAE_test": 0.00013999147410123918,
+  "RMSE_test": 0.0003560427977214349,
+  "R2_test": 0.999839211599505,
+  "elapsed_seconds": 5.76
+}

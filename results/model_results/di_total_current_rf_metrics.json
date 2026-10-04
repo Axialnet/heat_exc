@@ -1,0 +1,13 @@
+{
+  "target": "DI_total",
+  "input_mode": "Current Only",
+  "model": "RF",
+  "model_key": "di_total_current_rf",
+  "MAE_val": 0.00017134851057063393,
+  "RMSE_val": 0.0003441845590754234,
+  "R2_val": 0.9998494588219388,
+  "MAE_test": 0.00013413295728362725,
+  "RMSE_test": 0.00023006859256993336,
+  "R2_test": 0.9999328625292149,
+  "elapsed_seconds": 25.19
+}

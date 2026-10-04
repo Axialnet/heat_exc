@@ -1,0 +1,13 @@
+{
+  "target": "DI_total",
+  "input_mode": "Current Only",
+  "model": "LINEAR",
+  "model_key": "di_total_current_linear",
+  "MAE_val": 0.0011889270478921306,
+  "RMSE_val": 0.0014817511707720297,
+  "R2_val": 0.9972098785848363,
+  "MAE_test": 0.0011839120043205173,
+  "RMSE_test": 0.001474549633238711,
+  "R2_test": 0.9972421598126984,
+  "elapsed_seconds": 0.13
+}
