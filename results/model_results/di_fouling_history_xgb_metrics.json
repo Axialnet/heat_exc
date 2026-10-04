@@ -1,0 +1,13 @@
+{
+  "target": "DI_fouling",
+  "input_mode": "Current + History",
+  "model": "XGB",
+  "model_key": "di_fouling_history_xgb",
+  "MAE_val": 0.00016671792955353572,
+  "RMSE_val": 0.00039319946655955526,
+  "R2_val": 0.29576566602957166,
+  "MAE_test": 0.00011122430754647898,
+  "RMSE_test": 0.00024502974116710606,
+  "R2_test": 0.44701333373752006,
+  "elapsed_seconds": 2.84
+}

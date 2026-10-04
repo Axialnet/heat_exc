@@ -1,0 +1,51 @@
+[
+  {
+    "Check Name": "DI_fouling Numerical Identity",
+    "Tested Condition": "|(1 - U_overall/U_clean) - (1 - thermal_efficiency)| < 1e-3",
+    "Result": "PASSED",
+    "Observed Metric": "Max Diff: 9.90e-04, Mean Diff: 9.90e-04",
+    "Physical Rationale": "Slight ~9.9e-4 difference due to roundoff in area A_ht (29.1 vs 29.131 m\u00b2) in V2 generation script."
+  },
+  {
+    "Check Name": "DI_total Numerical Identity",
+    "Tested Condition": "|(1 - U_total/U_clean) - (1 - efficiency_total)| < 1e-3",
+    "Result": "PASSED",
+    "Observed Metric": "Max Diff: 8.92e-04, Mean Diff: 8.51e-04",
+    "Physical Rationale": "Consistent analytical representation within floating point tolerances."
+  },
+  {
+    "Check Name": "Non-Negativity Bounds",
+    "Tested Condition": "DI_fouling >= 0 and DI_total >= 0 everywhere",
+    "Result": "PASSED",
+    "Observed Metric": "Min DI_fouling: 0.000000, Min DI_total: 0.099620",
+    "Physical Rationale": "Degradation indices represent lost performance and cannot be negative."
+  },
+  {
+    "Check Name": "Physical Dominance (DI_total >= DI_fouling)",
+    "Tested Condition": "DI_total >= DI_fouling everywhere (corrosion adds to fouling)",
+    "Result": "PASSED",
+    "Observed Metric": "Passed: True, Mean Corrosion Gap: 0.1410",
+    "Physical Rationale": "Total thermal resistance R_total = 1/U_clean + Rf + R_wall >= 1/U_clean + Rf, so DI_total >= DI_fouling."
+  },
+  {
+    "Check Name": "CIP Cleaning Reset Dynamics",
+    "Tested Condition": "Mean drop in DI_fouling across scheduled CIP events > 0",
+    "Result": "PASSED",
+    "Observed Metric": "Mean CIP Drop: 0.000207 (removes ~122.9% of mean fouling)",
+    "Physical Rationale": "CIP events remove 60-95% of accumulated thermal fouling resistance."
+  },
+  {
+    "Check Name": "Temperature-Dependent Fouling Kinetics",
+    "Tested Condition": "Spearman rank correlation of mean DI_fouling vs Nominal Temperature > 0.8",
+    "Result": "FAILED",
+    "Observed Metric": "Spearman rho = 0.1907",
+    "Physical Rationale": "Epstein (1993) Arrhenius deposition law: deposition rate scales exponentially with temperature exp(-E/RT)."
+  },
+  {
+    "Check Name": "Hydraulic Shear Removal Effect",
+    "Tested Condition": "Higher mass flow rate reduces asymptotic fouling resistance at high temperature",
+    "Result": "FAILED",
+    "Observed Metric": "Spearman rho = nan",
+    "Physical Rationale": "Shear stress tau_w increases removal rate: removal = A_rem * tau_w * Rf."
+  }
+]

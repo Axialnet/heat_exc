@@ -1,0 +1,13 @@
+{
+  "target": "DI_total",
+  "input_mode": "Current + History",
+  "model": "XGB",
+  "model_key": "di_total_history_xgb",
+  "MAE_val": 0.00013752448002440803,
+  "RMSE_val": 0.00031831052322482656,
+  "R2_val": 0.9998712419065693,
+  "MAE_test": 0.00010683609597332894,
+  "RMSE_test": 0.00023321207668956518,
+  "R2_test": 0.9999310153639428,
+  "elapsed_seconds": 4.08
+}

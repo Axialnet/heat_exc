@@ -1,0 +1,13 @@
+{
+  "target": "DI_fouling",
+  "input_mode": "Current Only",
+  "model": "RF",
+  "model_key": "di_fouling_current_rf",
+  "MAE_val": 0.00023655041326474722,
+  "RMSE_val": 0.0004716814888480593,
+  "R2_val": -0.01341894805999777,
+  "MAE_test": 0.00018045414811514277,
+  "RMSE_test": 0.0003182727612451771,
+  "R2_test": 0.06701212225607334,
+  "elapsed_seconds": 26.38
+}

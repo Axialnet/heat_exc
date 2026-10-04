@@ -1,0 +1,23 @@
+{
+  "version": "1.0",
+  "description": "Configurable thresholds derived strictly from training data percentiles.",
+  "fouling_thresholds": {
+    "warning_percentile": 75,
+    "critical_percentile": 92,
+    "warning_di_fouling": 0.00013641057253160893,
+    "critical_di_fouling": 0.0006484436782079064,
+    "derivation_source": "Training set (60 scenarios, 525,600 rows)"
+  },
+  "risk_thresholds": {
+    "normal_max": 25.0,
+    "watch_max": 50.0,
+    "warning_max": 75.0,
+    "critical_max": 100.0
+  },
+  "alert_settings": {
+    "deduplication_window_h": 24,
+    "degradation_rate_alert_multiplier": 3.0,
+    "persistence_steps_required": 3
+  },
+  "maintenance_horizon_h": 168
+}
