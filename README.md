@@ -1039,3 +1039,79 @@ AI-Assisted Maintenance Decision Making
 ```
 
 The final objective is an intelligent system capable of continuously evaluating heat-exchanger condition, forecasting fouling and performance degradation, identifying maintenance risk, and assisting engineers in deciding **when and why maintenance should be performed**.
+
+
+---
+
+# 24/7 Live Equipment Monitoring & Predictive Maintenance Platform
+
+The project includes an industrial-grade, continuously running web monitoring and decision platform built on **FastAPI**, **SQLite**, and a **Single-Page SCADA Dashboard (Chart.js + WebSockets)**.
+
+```text
+[Version 1 Data Source / Live Sensors]
+                  │ (1-minute cycle or replay cadence)
+                  ▼
+         [Ingestion Worker]
+                  │
+                  ├──► [WaterProperties] (Compute ρ, μ from T_in)
+                  ├──► [FeatureEngineering] (16 CIP-Aware Causal Features)
+                  ├──► [Track A Model Inference] (XGBoost DI_fouling)
+                  ├──► [PhysicalCalculations] (U_retention, Q_retention, Rf, dP)
+                  ├──► [HealthScoring] (Phase 8 Composite Score: 0-100)
+                  ├──► [RiskEngine] (Phase 9 Risk 0-100, Rate, Prognostic TTT)
+                  ├──► [AlertEngine] (Phase 10 Deduplicated 24h Alert Log)
+                  └──► [CleaningRecommendation] (Phase 11 Persistence-Filtered Rules)
+                  │
+                  ├──► [SQLite Persistence] (sensor_readings, derived_metrics, alerts, cip_events)
+                  │
+                  └──► [Live WebSocket Broadcast] ──► [Interactive SCADA Dashboard]
+```
+
+## Quick Start — Local Execution
+
+### 1. Install Dependencies
+```bash
+pip install -r webapp/requirements.txt
+```
+
+### 2. Run the Platform Server
+```bash
+python run_server.py --port 8000
+```
+
+Access the application in your browser:
+* **Interactive Monitoring Dashboard:** `http://localhost:8000/`
+* **Swagger Interactive REST Documentation:** `http://localhost:8000/docs`
+* **Real-Time WebSocket Feed:** `ws://localhost:8000/ws`
+
+### 3. Run Automated Tests
+```bash
+python -m unittest discover -s tests -p "test_*.py"
+```
+All 28 automated tests validate water thermophysical properties, physical formulas, feature pipelines, risk engines, alert deduplication, cleaning persistence, and REST endpoints.
+
+## REST API Specification
+
+| Endpoint | Method | Description |
+|:---|:---:|:---|
+| `/api/health` | GET | System health, data feed freshness latency, cursor row, and worker state |
+| `/api/current` | GET | Latest operational telemetry, KPIs, sensor readings, and recommendations |
+| `/api/sensors` | GET | Structured inventory of all 15 sensors with units, bounds, and source categories |
+| `/api/history` | GET | Synchronized time-series observations for 6h, 24h, 7d, 30d, or full campaign |
+| `/api/alerts` | GET | 24-hour deduplicated alert event log filtered by severity |
+| `/api/alerts/{id}/acknowledge` | POST | Operator alert acknowledgement |
+| `/api/recommendation` | GET | Current CIP cleaning recommendation with auditable decision trace |
+| `/api/model-performance` | GET | Transparent disclosure of Track A (leakage-free) vs Track B (demo) benchmarks |
+| `/api/cip-events` | GET | Historical Clean-in-Place maintenance log |
+| `/api/replay/control` | POST | Pause, resume, adjust cadence, or reset the replay simulation |
+| `/ws` | WS | Real-time binary/JSON telemetry stream pushed on every observation |
+
+## Model Tracks & Scientific Transparency
+
+* **Track A — Production Model (Leakage-Free Standard):**  
+  * **Algorithm:** CIP-Aware XGBoost (16 strictly causal input features).
+  * **Offline Test Performance:** $R^2 = 0.2457$, $\text{MAE} = 1.24 \times 10^{-4}$.
+  * **Scientific Validity:** Operates strictly on non-invasive boundary measurements without internal heat transfer variables. $100\%$ of extreme errors are traced to unobservable stochastic Poisson bursts (magnitude $12.3\times$ mean $R_f$).
+* **Track B — Showcase Demonstration Models (Target-Proxy Leakage):**  
+  * **Performance:** $R^2 \approx 0.9914 \text{ to } 0.9992$.
+  * **Scientific Disclosure:** Explicitly labeled as target-proxy leakage. Evaluated strictly to demonstrate downstream maintenance engine behavior under ideal state data. Must **never** be cited as physical predictive performance on uninstrumented equipment.

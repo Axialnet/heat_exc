@@ -1,0 +1,11 @@
+services:
+  - type: web
+    name: cho-heat-exchanger-monitoring
+    runtime: python
+    buildCommand: pip install -r webapp/requirements.txt
+    startCommand: python run_server.py --host 0.0.0.0
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.9
+      - key: REPLAY_LOOP
+        value: "true"

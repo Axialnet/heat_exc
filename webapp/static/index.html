@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CHO Heat Exchanger — 24/7 Monitoring & Predictive Maintenance</title>
+  <link rel="stylesheet" href="/static/css/dashboard.css">
+  <!-- Chart.js from CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+</head>
+<body>
+
+<div id="app-container">
+
+  <!-- ── Sidebar Navigation ─────────────────────────────────────────────── -->
+  <nav id="sidebar">
+    <div class="brand-section">
+      <div class="brand-logo">HX</div>
+      <div class="brand-text">
+        <div class="brand-title">EXCHANGER AI</div>
+        <div class="brand-subtitle">Condition & Maintenance</div>
+      </div>
+    </div>
+
+    <ul class="nav-menu">
+      <li class="nav-item active" data-page="overview">
+        <span class="nav-icon">📊</span>
+        <span class="nav-label">Overview</span>
+      </li>
+      <li class="nav-item" data-page="sensors">
+        <span class="nav-icon">⚡</span>
+        <span class="nav-label">Live Sensors</span>
+      </li>
+      <li class="nav-item" data-page="trends">
+        <span class="nav-icon">📈</span>
+        <span class="nav-label">Trends & Analytics</span>
+      </li>
+      <li class="nav-item" data-page="maintenance">
+        <span class="nav-icon">🔧</span>
+        <span class="nav-label">Maintenance & CIP</span>
+      </li>
+      <li class="nav-item" data-page="alerts">
+        <span class="nav-icon">🔔</span>
+        <span class="nav-label">Alerts & Events</span>
+        <span class="badge-counter" id="sidebar-alert-badge" style="display:none;">0</span>
+      </li>
+      <li class="nav-item" data-page="system">
+        <span class="nav-icon">⚙️</span>
+        <span class="nav-label">Model & Diagnostics</span>
+      </li>
+    </ul>
+
+    <div class="sidebar-footer">
+      <div><b>Platform:</b> CHO Version 2.0</div>
+      <div><b>Data:</b> Version 1 Replay Feed</div>
+      <div style="margin-top:4px; font-size:10px; color:#475569;">© Industrial Monitoring Systems</div>
+    </div>
+  </nav>
+
+  <!-- ── Main Content Area ──────────────────────────────────────────────── -->
+  <div id="main-content">
+
+    <!-- Top Header Bar -->
+    <header id="top-header">
+      <div class="header-left">
+        <span class="exchanger-id-badge" id="header-exchanger-id">HX-CONNECTING</span>
+        <span class="data-source-pill">
+          <span class="connection-dot" id="connection-indicator"></span>
+          <span id="connection-label">CONNECTING...</span>
+        </span>
+        <span style="font-size:13px; font-weight:700; color:#38bdf8;" id="header-time-h">T = 0.0 h</span>
+      </div>
+
+      <div class="header-right">
+        <!-- Replay Speed & Pause Controls -->
+        <div class="replay-controls">
+          <button class="btn-ctrl active" id="btn-resume" title="Run / Resume Replay">▶ Play</button>
+          <button class="btn-ctrl" id="btn-pause" title="Pause Replay">⏸ Pause</button>
+          <span style="font-size:11px; color:#64748b; margin-left:6px;">Cadence:</span>
+          <select id="speed-select" style="background:#0f172a; color:#f8fafc; border:1px solid #334155; border-radius:4px; font-size:11px; padding:2px 6px;">
+            <option value="0.2">5 records/s</option>
+            <option value="0.5">2 records/s</option>
+            <option value="1.0" selected>1 record/s</option>
+            <option value="2.0">0.5 records/s</option>
+            <option value="5.0">0.2 records/s</option>
+          </select>
+        </div>
+
+        <span class="freshness-tag" id="freshness-display">Awaiting feed...</span>
+      </div>
+    </header>
+
+    <!-- Stale Data Warning Banner -->
+    <div id="stale-banner">
+      <span>⚠️ <b>DATA FEED STALE:</b> No incoming observations received in over 30 seconds. Showing last valid state.</span>
+      <span style="font-size:11px;">Verify worker connection.</span>
+    </div>
+
+    <!-- ── PAGE 1: OVERVIEW ─────────────────────────────────────────────── -->
+    <section class="page-view active" id="page-overview">
+
+      <!-- Recommendation Banner -->
+      <div class="rec-banner NORMAL" id="rec-banner">
+        <div style="flex:1;">
+          <div class="rec-title" id="rec-title">
+            <span>RECOMMENDATION: INITIALIZING</span>
+          </div>
+          <div class="rec-body" id="rec-body">
+            Autonomous condition assessment engine is analyzing incoming sensor telemetry.
+          </div>
+          <div class="rec-meta" id="rec-meta">
+            Persistence: 0 / 3 readings • Filter active
+          </div>
+        </div>
+      </div>
+
+      <!-- KPI Grid (6 Primary Indicators) -->
+      <div class="kpi-grid">
+        <div class="card">
+          <div class="card-title">
+            <span>Performance Score</span>
+            <span style="font-size:11px; color:#10b981;">0 - 100</span>
+          </div>
+          <div class="kpi-value state-normal" id="kpi-health-score">--</div>
+          <div class="kpi-sub">Composite thermal-hydraulic health</div>
+        </div>
+
+        <div class="card">
+          <div class="card-title">
+            <span>Fouling Index (DI)</span>
+            <span style="font-size:10px; color:#94a3b8;">1 - U/U_clean</span>
+          </div>
+          <div class="kpi-value state-normal" id="kpi-di-fouling">--</div>
+          <div class="kpi-sub" id="kpi-di-pred-sub">Target: Cleanable degradation</div>
+        </div>
+
+        <div class="card">
+          <div class="card-title">
+            <span>Maintenance Risk</span>
+            <span class="chip chip-normal" id="kpi-risk-chip">NORMAL</span>
+          </div>
+          <div class="kpi-value" id="kpi-risk-score">--</div>
+          <div class="kpi-sub">Critical boundary: Risk ≥ 75</div>
+        </div>
+
+        <div class="card">
+          <div class="card-title">
+            <span>Time to Critical</span>
+            <span style="font-size:10px; color:#38bdf8;">TTT</span>
+          </div>
+          <div class="kpi-value state-normal" id="kpi-ttt">--</div>
+          <div class="kpi-sub">Projected crossing horizon</div>
+        </div>
+
+        <div class="card">
+          <div class="card-title">
+            <span>CIP State</span>
+            <span style="font-size:10px; color:#10b981;">Operational</span>
+          </div>
+          <div class="kpi-value" id="kpi-cip-status" style="font-size:22px; margin-top:6px;">Clean</div>
+          <div class="kpi-sub">Cycle resets at 2190h, 4380h, 6570h</div>
+        </div>
+
+        <div class="card">
+          <div class="card-title">
+            <span>Threshold Envelope</span>
+            <span style="font-size:10px; color:#facc15;">Train Pct</span>
+          </div>
+          <div style="font-size:13px; margin-top:8px; line-height:1.6;">
+            <div>Warn: <b style="color:#facc15;">0.000136</b> (75th pct)</div>
+            <div>Crit: <b style="color:#ef4444;">0.000648</b> (92nd pct)</div>
+          </div>
+          <div class="kpi-sub" style="margin-top:6px;">Derived from training set only</div>
+        </div>
+      </div>
+
+      <!-- Main Overview Trend Chart -->
+      <div class="chart-card">
+        <div class="chart-header">
+          <div class="chart-title">Real-Time Fouling Trajectory vs. Model Prediction</div>
+          <div style="font-size:12px; color:#94a3b8;">Cyan: Actual Target | Orange: Track A XGBoost Prediction</div>
+        </div>
+        <div class="chart-container" style="height:320px;">
+          <canvas id="overview-chart"></canvas>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- ── PAGE 2: LIVE SENSORS ─────────────────────────────────────────── -->
+    <section class="page-view" id="page-sensors">
+      <div style="margin-bottom:20px; display:flex; justify-content:space-between; align-items:center;">
+        <div>
+          <h2 style="font-size:18px; font-weight:700;">Live Sensor Inventory & Measurements</h2>
+          <p style="font-size:13px; color:#94a3b8;">Click any parameter card to inspect high-resolution history, bounds, and statistics.</p>
+        </div>
+      </div>
+
+      <div id="sensors-container">
+        <!-- Rendered dynamically by dashboard.js -->
+        <div style="color:#64748b; padding:40px; text-align:center;">Loading sensor catalog...</div>
+      </div>
+    </section>
+
+    <!-- ── PAGE 3: TRENDS & ANALYTICS ───────────────────────────────────── -->
+    <section class="page-view" id="page-trends">
+      <div style="margin-bottom:20px; display:flex; justify-content:space-between; align-items:center;">
+        <div>
+          <h2 style="font-size:18px; font-weight:700;">Multi-Parameter Historical Trends</h2>
+          <p style="font-size:13px; color:#94a3b8;">Synchronized temporal dynamics across heat transfer, hydraulic, and risk metrics.</p>
+        </div>
+
+        <div class="chart-controls">
+          <button class="btn-range" data-hours="6">6 Hours</button>
+          <button class="btn-range active" data-hours="24">24 Hours</button>
+          <button class="btn-range" data-hours="168">7 Days</button>
+          <button class="btn-range" data-hours="720">30 Days</button>
+          <button class="btn-range" data-hours="8760">Full Campaign</button>
+        </div>
+      </div>
+
+      <!-- Chart 1: DI with thresholds -->
+      <div class="chart-card">
+        <div class="chart-title">Fouling Degradation Index (DI_fouling) & Regulatory Thresholds</div>
+        <div class="chart-container"><canvas id="chart-di"></canvas></div>
+      </div>
+
+      <!-- Chart 2: Health & Retention -->
+      <div class="chart-card">
+        <div class="chart-title">Composite Health Score & Heat Transfer/Duty Retention (%)</div>
+        <div class="chart-container"><canvas id="chart-health"></canvas></div>
+      </div>
+
+      <!-- Chart 3: Maintenance Risk -->
+      <div class="chart-card">
+        <div class="chart-title">Composite Maintenance Risk Evolution (0-100 Scale)</div>
+        <div class="chart-container"><canvas id="chart-risk"></canvas></div>
+      </div>
+
+      <div class="two-col-grid">
+        <!-- Chart 4: Operating Conditions -->
+        <div class="chart-card">
+          <div class="chart-title">Operating Boundaries (Temperature & Flow)</div>
+          <div class="chart-container"><canvas id="chart-operating"></canvas></div>
+        </div>
+
+        <!-- Chart 5: Pressure Drop -->
+        <div class="chart-card">
+          <div class="chart-title">Hydraulic Differential Pressure Drop (dP)</div>
+          <div class="chart-container"><canvas id="chart-dp"></canvas></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── PAGE 4: MAINTENANCE & CIP ────────────────────────────────────── -->
+    <section class="page-view" id="page-maintenance">
+      <div style="margin-bottom:20px;">
+        <h2 style="font-size:18px; font-weight:700;">Predictive Maintenance & Cleaning Decision Engine</h2>
+        <p style="font-size:13px; color:#94a3b8;">Deterministic rules, persistence filtering, and prognostic decision trace.</p>
+      </div>
+
+      <div class="two-col-grid">
+        <!-- Cleaning Recommendation Card -->
+        <div class="card">
+          <div class="card-title">
+            <span>Automated Cleaning Recommendation</span>
+            <span class="chip chip-normal" id="maint-rec-badge">NORMAL</span>
+          </div>
+          <div style="font-size:22px; font-weight:800; color:#fff; margin:12px 0 6px 0;" id="maint-rec-state">NORMAL</div>
+          <div style="font-size:14px; color:#94a3b8; margin-bottom:14px;" id="maint-rec-text">Evaluating operational criteria...</div>
+          <div style="background:#0f172a; padding:12px; border-radius:6px; border:1px solid #334155; font-size:13px;">
+            <div style="color:#64748b;">Recommended Maintenance Window:</div>
+            <div style="font-weight:700; color:#38bdf8;" id="maint-rec-window">Next Scheduled Turnaround</div>
+          </div>
+        </div>
+
+        <!-- Decision Trace Card -->
+        <div class="card">
+          <div class="card-title">
+            <span>Prognostic Decision Trace</span>
+            <span style="font-size:10px; color:#38bdf8;">AUDITABLE</span>
+          </div>
+          <table class="industrial-table" style="margin-top:8px;">
+            <tbody>
+              <tr><td>Current Degradation Index:</td><td><b id="trace-current-di">--</b></td></tr>
+              <tr><td>Warning Threshold (75th pct):</td><td style="color:#facc15;"><b id="trace-warning-threshold">0.000136</b></td></tr>
+              <tr><td>Critical Threshold (92nd pct):</td><td style="color:#ef4444;"><b id="trace-critical-threshold">0.000648</b></td></tr>
+              <tr><td>Degradation Velocity (24h slope):</td><td><b id="trace-rate">--</b></td></tr>
+              <tr><td>Estimated Time to Critical (TTT):</td><td><b id="trace-ttt">--</b></td></tr>
+              <tr><td>Persistence Filter Status:</td><td><b id="trace-persistence">--</b></td></tr>
+              <tr><td>Active Rule Applied:</td><td><span class="source-badge" id="trace-rule">--</span></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- CIP Events History Table -->
+      <div class="card" style="margin-top:20px;">
+        <div class="card-title">Historical Clean-in-Place (CIP) Maintenance Events</div>
+        <div class="table-wrapper">
+          <table class="industrial-table">
+            <thead>
+              <tr>
+                <th>Time (h)</th>
+                <th>Type</th>
+                <th>Effectiveness</th>
+                <th>DI Before CIP</th>
+                <th>Operational Notes</th>
+              </tr>
+            </thead>
+            <tbody id="cip-events-tbody">
+              <tr><td colspan="5" style="text-align:center; color:#64748b;">Loading CIP records...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── PAGE 5: ALERTS & EVENTS ──────────────────────────────────────── -->
+    <section class="page-view" id="page-alerts">
+      <div style="margin-bottom:20px; display:flex; justify-content:space-between; align-items:center;">
+        <div>
+          <h2 style="font-size:18px; font-weight:700;">Event-Driven Operator Alerts</h2>
+          <p style="font-size:13px; color:#94a3b8;">Deduplicated 24-hour alerting log for threshold exceedances, high risks, and prognostic horizons.</p>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="table-wrapper">
+          <table class="industrial-table">
+            <thead>
+              <tr>
+                <th>Alert ID</th>
+                <th>Timestamp</th>
+                <th>Severity</th>
+                <th>Trigger Reason</th>
+                <th>Current / Threshold DI</th>
+                <th>Recommended Action</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody id="alerts-table-tbody">
+              <tr><td colspan="7" style="text-align:center; color:#64748b; padding:30px;">Loading alert events...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── PAGE 6: MODEL & SYSTEM DIAGNOSTICS ──────────────────────────── -->
+    <section class="page-view" id="page-system">
+      <div style="margin-bottom:20px;">
+        <h2 style="font-size:18px; font-weight:700;">Model Validation Benchmarks & System Diagnostics</h2>
+        <p style="font-size:13px; color:#94a3b8;">Transparent disclosure of model architectures, leakage classification, and service metrics.</p>
+      </div>
+
+      <div class="two-col-grid">
+        <!-- Track A: Production Model Card -->
+        <div class="card" style="border-left:5px solid #38bdf8;">
+          <div class="card-title">
+            <span style="color:#38bdf8;">Track A — Production Model</span>
+            <span class="chip chip-normal">LEAKAGE-FREE</span>
+          </div>
+          <div style="font-size:13px; color:#94a3b8; margin:8px 0;">CIP-Aware XGBoost (16 strictly causal features)</div>
+          <div style="display:flex; gap:20px; margin:14px 0;">
+            <div>
+              <div style="font-size:11px; color:#64748b;">OFFLINE TEST R²</div>
+              <div style="font-size:26px; font-weight:800; color:#38bdf8;" id="track-a-r2">R² = 0.2457</div>
+            </div>
+            <div>
+              <div style="font-size:11px; color:#64748b;">OFFLINE TEST MAE</div>
+              <div style="font-size:26px; font-weight:800; color:#fff;" id="track-a-mae">MAE = 1.24e-4</div>
+            </div>
+          </div>
+          <p style="font-size:12px; color:#cbd5e1; line-height:1.6;" id="track-a-disc">
+            Operates strictly on online-observable boundary measurements and maintenance logs without internal heat-transfer states.
+          </p>
+        </div>
+
+        <!-- Track B: Showcase Demonstration Card -->
+        <div class="card" style="border-left:5px solid #f97316;">
+          <div class="card-title">
+            <span style="color:#f97316;">Track B — Showcase Demonstration Models</span>
+            <span class="chip chip-warning">CONTROLLED LEAKAGE</span>
+          </div>
+          <div style="font-size:12px; color:#cbd5e1; margin-bottom:12px;">
+            ⚠️ <b>SCIENTIFIC DISCLOSURE:</b> Evaluated intentionally to demonstrate downstream maintenance engine behavior. Near-perfect R² ≈ 0.999 is tautological target reconstruction and MUST NOT be claimed as physical predictive accuracy.
+          </div>
+          <div id="track-b-cards">
+            <!-- Rendered dynamically -->
+          </div>
+        </div>
+      </div>
+
+      <!-- System Telemetry & Ingestion Stats -->
+      <div class="two-col-grid" style="margin-top:20px;">
+        <div class="card">
+          <div class="card-title">Live Model Tracking vs. V1 Reference Target</div>
+          <table class="industrial-table" style="margin-top:10px;">
+            <tbody>
+              <tr><td>Live Evaluated Observations:</td><td><b id="live-eval-count">--</b></td></tr>
+              <tr><td>Live Rolling MAE (Last 100 obs):</td><td><b id="live-eval-mae">--</b></td></tr>
+              <tr><td>Evaluation Basis:</td><td>Version 1 synthetic target (DI_actual)</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="card">
+          <div class="card-title">Data Ingestion & Processing Worker Telemetry</div>
+          <table class="industrial-table" style="margin-top:10px;">
+            <tbody>
+              <tr><td>Source Dataset:</td><td>Version 1 Final CSV (`shell_tube_fouling_final.csv`)</td></tr>
+              <tr><td>Replay Progress:</td><td><b id="sys-cursor-progress">--</b></td></tr>
+              <tr><td>Records Processed:</td><td><b id="sys-records-processed">--</b></td></tr>
+              <tr><td>Feed Freshness Latency:</td><td><b id="sys-freshness">--</b></td></tr>
+              <tr><td>Persisted Sensor Rows:</td><td><b id="sys-db-readings">--</b></td></tr>
+              <tr><td>Persisted Alert Events:</td><td><b id="sys-db-alerts">--</b></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+  </div>
+</div>
+
+<!-- ── SENSOR DETAIL MODAL ─────────────────────────────────────────────── -->
+<div class="modal-backdrop" id="sensor-modal-backdrop">
+  <div class="modal-window">
+    <div class="modal-header">
+      <div>
+        <h3 style="font-size:18px; font-weight:700;" id="modal-sensor-title">Sensor Measurement</h3>
+        <div style="font-size:12px; color:#94a3b8;" id="modal-sensor-unit">Unit: --</div>
+      </div>
+      <button class="modal-close">&times;</button>
+    </div>
+    <div class="chart-container" style="height:280px;">
+      <canvas id="modal-chart"></canvas>
+    </div>
+    <div style="font-size:11px; color:#64748b; margin-top:12px; text-align:right;">
+      Historical 168-Hour Telemetry Buffer
+    </div>
+  </div>
+</div>
+
+<script src="/static/js/dashboard.js"></script>
+</body>
+</html>
